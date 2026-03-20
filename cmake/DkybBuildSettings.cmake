@@ -6,40 +6,40 @@ function(dkyb_apply_common_settings)
     set(multiValueArgs EXTRA_CXX_FLAGS)
     cmake_parse_arguments(DKYB "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if (NOT DKYB_CXX_STANDARD)
+    if(NOT DKYB_CXX_STANDARD)
         set(DKYB_CXX_STANDARD 23)
-    endif ()
+    endif()
 
     # Build type defaults and allowed values (single-config + multi-config generators).
-    if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+    if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type" FORCE)
-    endif ()
+    endif()
 
     set(_dkyb_build_types "Debug;Release;RelWithDebInfo;MinSizeRel;Coverage;Performance")
     set(CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING "Build type" FORCE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${_dkyb_build_types})
 
-    if (CMAKE_CONFIGURATION_TYPES)
+    if(CMAKE_CONFIGURATION_TYPES)
         set(CMAKE_CONFIGURATION_TYPES "${_dkyb_build_types}" CACHE STRING "Configs" FORCE)
-    endif ()
+    endif()
 
     # Uniform output layout for all generators.
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/bin" CACHE PATH "Runtime output directory" FORCE)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib" CACHE PATH "Library output directory" FORCE)
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/lib" CACHE PATH "Archive output directory" FORCE)
 
-    foreach (_dkyb_buildType IN LISTS _dkyb_build_types)
+    foreach(_dkyb_buildType IN LISTS _dkyb_build_types)
         string(TOUPPER "${_dkyb_buildType}" _dkyb_buildTypeUpper)
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${_dkyb_buildTypeUpper} "${CMAKE_BINARY_DIR}/${_dkyb_buildType}/bin" CACHE PATH "Runtime output directory for ${_dkyb_buildTypeUpper}" FORCE)
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${_dkyb_buildTypeUpper} "${CMAKE_BINARY_DIR}/${_dkyb_buildType}/lib" CACHE PATH "Library output directory for ${_dkyb_buildTypeUpper}" FORCE)
         set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${_dkyb_buildTypeUpper} "${CMAKE_BINARY_DIR}/${_dkyb_buildType}/lib" CACHE PATH "Archive output directory for ${_dkyb_buildTypeUpper}" FORCE)
-    endforeach ()
+    endforeach()
 
     set(_dkyb_base_flags "-rdynamic -Wall -Werror")
-    if (DKYB_EXTRA_CXX_FLAGS)
+    if(DKYB_EXTRA_CXX_FLAGS)
         string(JOIN " " _dkyb_extra_flags ${DKYB_EXTRA_CXX_FLAGS})
         set(_dkyb_base_flags "${_dkyb_base_flags} ${_dkyb_extra_flags}")
-    endif ()
+    endif()
 
     set(_dkyb_coverage_flags "-g -O0 -fno-default-inline --coverage -fprofile-abs-path -fprofile-arcs -fno-inline -fno-inline-small-functions -ftest-coverage -lgcov")
     set(_dkyb_performance_flags "-O3 -DNDEBUG -march=native -flto")
