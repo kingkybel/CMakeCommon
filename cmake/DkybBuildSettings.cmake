@@ -63,7 +63,7 @@ function(dkyb_update_submodules)
     find_package(Git REQUIRED)
 
     execute_process(
-        COMMAND ${GIT_EXECUTABLE} submodule update --remote --merge
+        COMMAND ${GIT_EXECUTABLE} submodule update --remote
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         RESULT_VARIABLE _result
         OUTPUT_VARIABLE _output
@@ -72,7 +72,19 @@ function(dkyb_update_submodules)
 
     if(NOT _result EQUAL 0)
         message(FATAL_ERROR "Failed to update submodules: ${_error}")
+    endif()
+
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} submodule foreach git merge --allow-unrelated-histories FETCH_HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        RESULT_VARIABLE _result2
+        OUTPUT_VARIABLE _output2
+        ERROR_VARIABLE _error2
+    )
+
+    if(NOT _result2 EQUAL 0)
+        message(FATAL_ERROR "Failed to merge submodules: ${_error2}")
     else()
-        message(STATUS "Submodules updated successfully")
+        message(STATUS "Submodules updated and merged successfully")
     endif()
 endfunction()
