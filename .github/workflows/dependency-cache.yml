@@ -16,7 +16,7 @@ on:
       cmake-version:
         required: false
         type: string
-        default: '3.26'
+        default: '3.26.4'
       build-type:
         required: false
         type: string
@@ -30,9 +30,13 @@ jobs:
       DKYB_DEPENDENCY_CACHE_ROOT: ${{ github.workspace }}/build/dkyb-cache
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-cmake@v4
-        with:
-          cmake-version: ${{ inputs.cmake-version }}
+      - name: Install CMake
+        run: |
+          set -euo pipefail
+          python3 -m ensurepip --upgrade >/dev/null
+          python3 -m pip install --upgrade pip >/dev/null
+          python3 -m pip install --no-cache-dir "cmake==${{ inputs.cmake-version }}"
+          echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
       - name: Restore dependency cache
         uses: actions/cache@v4
         with:
