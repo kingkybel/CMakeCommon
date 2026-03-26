@@ -1,0 +1,62 @@
+name: Build dependency cache
+
+on:
+  workflow_call:
+    inputs:
+      dependency-name:
+        required: true
+        type: string
+      dependency-version:
+        required: true
+        type: string
+      build:
+        required: false
+        type: boolean
+        default: true
+      cmake-version:
+        required: false
+        type: string
+        default: '3.26'
+      build-type:
+        required: false
+        type: string
+        default: Release
+    secrets: {}
+
+jobs:
+  build-dependency:
+    runs-on: ubuntu-latest
+    env:
+      DKYB_DEPENDENCY_CACHE_ROOT: ${{ github.workspace }}/build/dkyb-cache
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-cmake@v4
+        with:
+          cmake-version: ${{ inputs.cmake-version }}
+      - name: Restore dependency cache
+        uses: actions/cache@v4
+        with:
+          path: build/dkyb-cache
+          key: deps-${{ inputs.dependency-name }}-${{ inputs.dependency-version }}-${{ hashFiles('cmake/**') }}
+          restore-keys: |
+            deps-${{ inputs.dependency-name }}-${{ inputs.dependency-version }}-
+            deps-${{ inputs.dependency-name }}-
+      - name: Configure dependency runner
+        run: |
+          cmake -S cmake/dependency -B build \
+            -DDKYB_DEPENDENCY_NAME=${{ inputs.dependency-name }} \
+            -DDKYB_DEPENDENCY_VERSION=${{ inputs.dependency-version }} \
+            -DDKYB_DEPENDENCY_BUILD=${{ inputs.build }} \
+            -DDKYB_DEPENDENCY_CACHE_ROOT=${{ env.DKYB_DEPENDENCY_CACHE_ROOT }} \
+            -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}
+      - name: Build dependency
+        run: cmake --build build --target dkyb_dependency_runner --config ${{ inputs.build-type }}
+      - name: Package cached dependency
+        run: |
+          mkdir -p artifacts
+          tar -czf artifacts/dependency-${{ inputs.dependency-name }}-${{ inputs.dependency-version }}.tar.gz -C build/dkyb-cache ${{ inputs.dependency-name }}
+      - name: Publish dependency artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-${{ inputs.dependency-name }}-${{ inputs.dependency-version }}
+          path: artifacts
