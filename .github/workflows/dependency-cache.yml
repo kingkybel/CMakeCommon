@@ -33,11 +33,10 @@ jobs:
       - name: Install CMake
         run: |
           set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
           if python3 -c "import ensurepip" >/dev/null 2>&1; then
             python3 -m ensurepip --upgrade >/dev/null
-          else
-            sudo apt-get update
-            sudo apt-get install -y python3-pip
           fi
           python3 -m pip install --upgrade pip >/dev/null
           python3 -m pip install --no-cache-dir "cmake==${{ inputs.cmake-version }}"
