@@ -184,10 +184,13 @@ function(dkyb_build_and_cache NAME VERSION)
     dkyb_dependency_sanitize("${NAME}" _name_key)
     dkyb_dependency_sanitize("${_resolved_version}" _version_key_sanitized)
     set(_target_name "dkyb_build_${_name_key}_${_version_key_sanitized}")
+    set(_external_prefix "${_cache_root}/${NAME}/${_version_key_sanitized}/external")
+    set(_tmp_root "${_external_prefix}/tmp")
+    file(MAKE_DIRECTORY "${_external_prefix}")
+    file(MAKE_DIRECTORY "${_tmp_root}")
 
     # Build artifacts will always install directly into the system prefix (/usr),
     # so callers must run CMake with sufficient privileges or sudo will be used for install.
-    set(_external_prefix "/usr")
     set(_install_prefix "/usr")
     if(TARGET ${_target_name})
         message(STATUS "Build target ${_target_name} already defined")
@@ -211,6 +214,7 @@ function(dkyb_build_and_cache NAME VERSION)
             CMAKE_ARGS ${_configure_args}
             UPDATE_DISCONNECTED ON
             INSTALL_DIR "${_install_prefix}"
+            TMP_DIR "${_tmp_root}"
         )
         if(_source_subdir)
             list(APPEND _external_args SOURCE_SUBDIR "${_source_subdir}")
