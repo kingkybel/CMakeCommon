@@ -189,9 +189,8 @@ function(dkyb_build_and_cache NAME VERSION)
     file(MAKE_DIRECTORY "${_external_prefix}")
     file(MAKE_DIRECTORY "${_tmp_root}")
 
-    # Build artifacts will always install directly into the system prefix (/usr),
-    # so callers must run CMake with sufficient privileges or sudo will be used for install.
-    set(_install_prefix "/usr")
+    set(_install_prefix "${_cache_root}/${NAME}/${_version_key_sanitized}/install")
+    file(MAKE_DIRECTORY "${_install_prefix}")
     if(TARGET ${_target_name})
         message(STATUS "Build target ${_target_name} already defined")
     else()
@@ -224,7 +223,7 @@ function(dkyb_build_and_cache NAME VERSION)
         ExternalProject_Add(
             ${_target_name}
             ${_external_args}
-            INSTALL_COMMAND sudo env "PATH=$PATH" ${CMAKE_COMMAND} --install <BINARY_DIR> --prefix ${_install_prefix}
+            INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR> --prefix ${_install_prefix}
         )
     endif()
 
