@@ -30,6 +30,8 @@ jobs:
       DKYB_DEPENDENCY_CACHE_ROOT: ${{ github.workspace }}/build/dkyb-cache
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Install CMake
         run: |
           set -euo pipefail
