@@ -185,12 +185,15 @@ function(dkyb_build_and_cache NAME VERSION)
     dkyb_dependency_sanitize("${_resolved_version}" _version_key_sanitized)
     set(_target_name "dkyb_build_${_name_key}_${_version_key_sanitized}")
 
+    # Build artifacts will always install directly into the system prefix (/usr),
+    # so callers must run CMake with sufficient privileges or sudo will be used for install.
+    set(_external_prefix "/usr")
+    set(_install_prefix "/usr")
     if(TARGET ${_target_name})
         message(STATUS "Build target ${_target_name} already defined")
     else()
-        set(_external_prefix "${_cache_root}/${NAME}/${_version_key}/external")
-        # set(_install_prefix "${_cache_root}/${NAME}/${_version_key}/install")
-        set(_install_prefix "/usr/local") # TODO: make this configurable?
+        # set(_external_prefix "${_cache_root}/${NAME}/${_version_key}/external")
+        # # set(_install_prefix "${_cache_root}/${NAME}/${_version_key}/install")
         set(_configure_args
             -DCMAKE_INSTALL_PREFIX=${_install_prefix}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -217,9 +220,10 @@ function(dkyb_build_and_cache NAME VERSION)
         ExternalProject_Add(
             ${_target_name}
             ${_external_args}
+            INSTALL_COMMAND "sudo ${CMAKE_COMMAND} --install <BINARY_DIR> --prefix ${_install_prefix}"
         )
     endif()
 
-    dkyb_dependency_record(${NAME} ${_resolved_version} BUILD_PREFIX "${_cache_root}/${NAME}/${_version_key}/install")
+    dkyb_dependency_record(${NAME} ${_resolved_version} BUILD_PREFIX "${_install_prefix}")
     dkyb_dependency_record(${NAME} ${_resolved_version} BUILD_TARGET ${_target_name})
 endfunction()
