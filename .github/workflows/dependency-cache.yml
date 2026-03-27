@@ -65,7 +65,7 @@ jobs:
       - name: Build dependency
         run: cmake --build build --target dkyb_dependency_runner --config ${{ inputs.build-type }}
       - name: Install dependency
-        run: cmake --install build --config ${{ inputs.build-type }}
+        run: sudo cmake --install build --config ${{ inputs.build-type }} --prefix /usr
       - name: Package cached dependency
         run: |
           mkdir -p artifacts
