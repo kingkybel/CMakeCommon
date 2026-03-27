@@ -17,6 +17,12 @@ dkyb_register_dependency(gtest
     GIT_TAG_TEMPLATE v<version>
 )
 
+dkyb_register_dependency(grpc
+    GIT_REPOSITORY https://github.com/grpc/grpc.git
+    GIT_TAG_TEMPLATE v<version>
+    CMAKE_ARGS -DgRPC_BUILD_TESTS=OFF -DgRPC_INSTALL=ON
+)
+
 dkyb_register_dependency(debugtrace
     GIT_REPOSITORY https://github.com/kingkybel/DebugTrace.git
     GIT_TAG_TEMPLATE main

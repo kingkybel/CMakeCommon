@@ -1,0 +1,148 @@
+name: Build single-platform CMake environment
+
+on:
+  workflow_call:
+    inputs:
+      dependency-list:
+        required: true
+        type: string
+        description: |-
+          Newline-separated dependency entries in the form `name:version`.
+          Comments can be added with `#` and blank lines are ignored.
+      build-type:
+        required: false
+        type: string
+        default: Release
+        description: CMake configuration used when building dependencies.
+      cmake-version:
+        required: false
+        type: string
+        default: '3.26.4'
+        description: CMake version installed on the runner.
+
+jobs:
+  build-environment:
+    runs-on: ubuntu-latest
+    env:
+      DKYB_DEPENDENCY_CACHE_ROOT: ${{ github.workspace }}/build/dkyb-cache
+      CC: /usr/bin/gcc-14
+      CXX: /usr/bin/g++-14
+    outputs:
+      dependency-hash: ${{ steps.dependency-hash.outputs.hash }}
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install common packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            ninja-build \
+            git \
+            curl \
+            wget \
+            unzip \
+            pkg-config \
+            libssl-dev \
+            gcc-14 \
+            g++-14 \
+            lcov
+
+      - name: Install CMake
+        uses: jwlawson/actions-setup-cmake@v7
+        with:
+          cmake_version: ${{ inputs.cmake-version }}
+
+      - name: Cache coverage tooling
+        run: |
+          mkdir -p build/dkyb-cache/tools/lcov
+          for tool in lcov genhtml geninfo; do
+            if command -v "$tool" >/dev/null 2>&1; then
+              cp "$(command -v "$tool")" build/dkyb-cache/tools/lcov/
+            fi
+          done
+
+      - name: Cache Sonar build-wrapper
+        run: |
+          mkdir -p build/dkyb-cache/tools/sonar
+          curl -sSLo /tmp/build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+          unzip -q /tmp/build-wrapper.zip -d /tmp
+          cp -R /tmp/build-wrapper-linux-x86/* build/dkyb-cache/tools/sonar/
+
+      - name: Compute dependency hash
+        id: dependency-hash
+        run: |
+          deps='${{ inputs.dependency-list }}'
+          normalized=$(printf '%s' "$deps" | tr '\r' '\n' | sed -E 's/#.*//g' | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//' | grep -v '^$' || true)
+          if [[ -z "$normalized" ]]; then
+            echo "No dependencies configured"
+            normalized=''
+          fi
+          hash=$(printf '%s\n' "$normalized" | sha256sum | awk '{print $1}')
+          echo "hash=$hash" >> "$GITHUB_OUTPUT"
+
+      - name: Restore dependency cache
+        uses: actions/cache@v4
+        with:
+          path: build/dkyb-cache
+          key: cmake-env-${{ steps.dependency-hash.outputs.hash }}
+          restore-keys: |
+            cmake-env-${{ steps.dependency-hash.outputs.hash }}-
+            cmake-env-
+
+      - name: Build / install dependencies
+        env:
+          DKYB_DEPENDENCY_CACHE_ROOT: ${{ github.workspace }}/build/dkyb-cache
+          BUILD_TYPE: ${{ inputs.build-type }}
+        run: |
+          set -euo pipefail
+
+          sanitize() {
+            local value="$1"
+            printf '%s' "$value" | sed 's/[^A-Za-z0-9]/_/g' | tr '[:upper:]' '[:lower:]'
+          }
+
+          trimmed_dependencies='${{ inputs.dependency-list }}'
+          if [[ -z "$(printf '%s' "$trimmed_dependencies" | tr -d '[:space:]')" ]]; then
+            echo "No dependencies to build. Add entries to the workflow input."
+            exit 0
+          fi
+
+          while IFS= read -r line || [[ -n "$line" ]]; do
+            line=$(printf '%s' "$line" | tr -d '\r')
+            line=${line%%#*}
+            line=$(printf '%s' "$line" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')
+            if [[ -z "$line" ]]; then
+              continue
+            fi
+            name=${line%%:*}
+            version=${line#*:}
+            if [[ "$name" == "$line" ]]; then
+              echo "Warning: dependency entry '$line' does not contain ':'. Treating version as 'latest'."
+              version=latest
+            fi
+            version=${version:-latest}
+
+            sanitized_version=$(sanitize "$version")
+            cache_dir="${DKYB_DEPENDENCY_CACHE_ROOT}/${name}/${sanitized_version}"
+            if [[ -f "${cache_dir}/.dkyb-build-ok" ]]; then
+              echo "Dependency ${name}@${version} already built; skipping."
+              continue
+            fi
+
+            build_dir="${{ github.workspace }}/build/dependency-${name}-${sanitized_version}"
+            cmake -S cmake-common/cmake/dependency -B "$build_dir" \
+              -DDKYB_DEPENDENCY_NAME=${name} \
+              -DDKYB_DEPENDENCY_VERSION=${version} \
+              -DDKYB_DEPENDENCY_BUILD=ON \
+              -DDKYB_DEPENDENCY_CACHE_ROOT=${DKYB_DEPENDENCY_CACHE_ROOT} \
+              -DDKYB_DEPENDENCY_SYSTEM_INSTALL_PREFIX=/usr \
+              -DDKYB_DEPENDENCY_SYSTEM_INSTALL_USE_SUDO=ON \
+              -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+            cmake --build "$build_dir" --target dkyb_dependency_runner --config ${BUILD_TYPE}
+            mkdir -p "$cache_dir"
+            touch "$cache_dir/.dkyb-build-ok"
+          done <<< "$trimmed_dependencies"
