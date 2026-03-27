@@ -90,3 +90,4 @@ jobs:
 ```
 
 The workflow restores the `build/dkyb-cache` directory, configures `cmake/dependency` with the requested dependency, builds `dkyb_dependency_runner`, and uploads the cached outputs. Subsequent workflow consumers can either download the artifact or restore the cache key to reuse the built files.
+If you want the dependency headers/libraries to also live in a system prefix (so `include_directories(/usr/include)` or similar keeps working) add `-DDKYB_DEPENDENCY_SYSTEM_INSTALL_PREFIX=/usr` (and keep `DKYB_DEPENDENCY_SYSTEM_INSTALL_USE_SUDO=ON` when sudo is needed) to the CMake configuration. The runner still uses the cache directory for packaging while an extra install step pushes the files under the configured system path.

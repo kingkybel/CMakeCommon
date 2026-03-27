@@ -72,6 +72,8 @@ jobs:
             -DDKYB_DEPENDENCY_VERSION=${{ inputs.dependency-version }} \
             -DDKYB_DEPENDENCY_BUILD=${{ inputs.build }} \
             -DDKYB_DEPENDENCY_CACHE_ROOT=${{ env.DKYB_DEPENDENCY_CACHE_ROOT }} \
+            -DDKYB_DEPENDENCY_SYSTEM_INSTALL_PREFIX=/usr \
+            -DDKYB_DEPENDENCY_SYSTEM_INSTALL_USE_SUDO=ON \
             -DCMAKE_BUILD_TYPE=${{ inputs.build-type }}
       - name: Build dependency
         run: cmake --build build --target dkyb_dependency_runner --config ${{ inputs.build-type }}
