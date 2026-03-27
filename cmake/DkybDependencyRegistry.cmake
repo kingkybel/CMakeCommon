@@ -12,5 +12,6 @@ dkyb_register_dependency(boost
 
 dkyb_register_dependency(gtest
     GIT_REPOSITORY https://github.com/google/googletest.git
-    ARCHIVE_URL_TEMPLATE https://github.com/google/googletest/archive/refs/tags/release-<version>.zip
+    ARCHIVE_URL_TEMPLATE https://github.com/google/googletest/archive/refs/tags/v<version>.zip
+    GIT_TAG_TEMPLATE v<version>
 )
