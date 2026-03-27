@@ -189,7 +189,8 @@ function(dkyb_build_and_cache NAME VERSION)
         message(STATUS "Build target ${_target_name} already defined")
     else()
         set(_external_prefix "${_cache_root}/${NAME}/${_version_key}/external")
-        set(_install_prefix "${_cache_root}/${NAME}/${_version_key}/install")
+        # set(_install_prefix "${_cache_root}/${NAME}/${_version_key}/install")
+        set(_install_prefix "/usr/local") # TODO: make this configurable?
         set(_configure_args
             -DCMAKE_INSTALL_PREFIX=${_install_prefix}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

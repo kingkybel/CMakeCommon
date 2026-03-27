@@ -35,6 +35,17 @@ jobs:
       - name: Install CMake
         run: |
           set -euo pipefail
+          if [ -x "$(command -v cmake)" ]; then
+            installed_version=$(cmake --version | head -n1 | awk '{print $3}')
+            if [ "$installed_version" = "${{ inputs.cmake-version }}" ]; then
+              echo "CMake $installed_version is already installed, skipping installation."
+              exit 0
+            else
+              echo "CMake $installed_version is installed but does not match required version ${{ inputs.cmake-version }}, installing required version."
+            fi
+          else
+            echo "CMake is not installed, installing required version ${{ inputs.cmake-version }}."
+          fi
           if ! python3 -m pip --version >/dev/null 2>&1; then
             if python3 -c "import ensurepip" >/dev/null 2>&1; then
               python3 -m ensurepip --upgrade >/dev/null
