@@ -67,11 +67,13 @@ jobs:
       - name: Install dependency
         run: |
           set -euo pipefail
-          install_dir="${{ env.DKYB_DEPENDENCY_CACHE_ROOT }}/${{ inputs.dependency-name }}/${{ inputs.dependency-version }}/install"
+          version="${{ inputs.dependency-version }}"
+          sanitized_version=$(printf '%s' "$version" | sed 's/[^A-Za-z0-9]/_/g' | tr '[:upper:]' '[:lower:]')
+          install_dir="${{ env.DKYB_DEPENDENCY_CACHE_ROOT }}/${{ inputs.dependency-name }}/${sanitized_version}/install"
           if [ -d "$install_dir" ]; then
             sudo cp -r "$install_dir"/* /usr
           else
-            echo "##[warning]No install tree found at $install_dir, skipping."
+            echo "##[warning]No install tree found at $install_dir (sanitized version $sanitized_version), skipping."
           fi
       - name: Package cached dependency
         run: |
