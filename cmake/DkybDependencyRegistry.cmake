@@ -17,12 +17,62 @@ dkyb_register_dependency(gtest
     GIT_TAG_TEMPLATE v<version>
 )
 
+dkyb_register_dependency(debugtrace
+    GIT_REPOSITORY https://github.com/kingkybel/DebugTrace.git
+    GIT_TAG_TEMPLATE main
+)
+
 dkyb_register_dependency(typetraits
     GIT_REPOSITORY https://github.com/kingkybel/TypeTraits.git
     GIT_TAG_TEMPLATE main
 )
 
-dkyb_register_dependency(debugtrace
-    GIT_REPOSITORY https://github.com/kingkybel/DebugTrace.git
+dkyb_register_dependency(containerconvert
+    GIT_REPOSITORY https://github.com/kingkybel/ContainerConvert.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(stringutilities
+    GIT_REPOSITORY https://github.com/kingkybel/StringUtilities.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(performancetimer
+    GIT_REPOSITORY https://github.com/kingkybel/PerformanceTimer.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(jsonobject
+    GIT_REPOSITORY https://github.com/kingkybel/JsonObject.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(messagetoobject
+    GIT_REPOSITORY https://github.com/kingkybel/MessageToObject.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(threadutilities
+    GIT_REPOSITORY https://github.com/kingkybel/ThreadUtilities.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(ringbuffer
+    GIT_REPOSITORY https://github.com/kingkybel/RingBuffer.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(directedgraph
+    GIT_REPOSITORY https://github.com/kingkybel/DirectedGraph.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(fastfurioustransformation
+    GIT_REPOSITORY https://github.com/kingkybel/FastFuriousTransformation.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(fixdecoder
+    GIT_REPOSITORY https://github.com/kingkybel/FixDecoder.git
     GIT_TAG_TEMPLATE main
 )
