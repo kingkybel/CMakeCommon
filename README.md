@@ -102,7 +102,9 @@ The workflow takes:
 - `build-type`: the CMake configuration used while building the dependencies (default `Release`).
 - `cmake-version`: the CMake version installed on the runner (default `3.26.4`).
 
-The job installs Debian packages (`build-essential`, `ninja-build`, `git`, `curl`, `wget`, `unzip`, `pkg-config`, `libssl-dev`), runs the dependency driver for each requested dependency, and records a sentinel file inside `build/dkyb-cache` so the workflow can quickly skip already-built artifacts.
+The job installs Debian packages (`build-essential`, `ninja-build`, `git`, `curl`, `wget`, `unzip`, `pkg-config`, `libssl-dev`, `gcc-14`, `g++-14`, `lcov`), runs the dependency driver for each requested dependency, installs each dependency into `build/dkyb-install`, and records a sentinel file inside `build/dkyb-cache` so the workflow can quickly skip already-built artifacts.
+
+Because dependencies now land under `build/dkyb-install`, the workflow emits the `install-prefix` output so downstream jobs can add `-DCMAKE_PREFIX_PATH=${{ needs.prepare-environment.outputs.install-prefix }}` when they configure their own builds. This keeps all of the generated headers/libs inside the workspace and avoids needing to install into `/usr` on a fresh runner.
 
 Because all of the dkyb repositories rely on modern C++ (C++23+) we install `gcc-14`/`g++-14` on the runner and force `CC`/`CXX` to `/usr/bin/gcc-14` and `/usr/bin/g++-14` so that every downstream build uses the same compiler.
 

@@ -25,10 +25,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DKYB_DEPENDENCY_CACHE_ROOT: ${{ github.workspace }}/build/dkyb-cache
+      DKYB_DEPENDENCY_INSTALL_PREFIX: ${{ github.workspace }}/build/dkyb-install
       CC: /usr/bin/gcc-14
       CXX: /usr/bin/g++-14
     outputs:
       dependency-hash: ${{ steps.dependency-hash.outputs.hash }}
+      install-prefix: ${{ steps.dependency-hash.outputs.install_prefix }}
     steps:
       - name: Check out sources
         uses: actions/checkout@v4
@@ -81,6 +83,7 @@ jobs:
           fi
           hash=$(printf '%s\n' "$normalized" | sha256sum | awk '{print $1}')
           echo "hash=$hash" >> "$GITHUB_OUTPUT"
+          echo "install_prefix=${{ env.DKYB_DEPENDENCY_INSTALL_PREFIX }}" >> "$GITHUB_OUTPUT"
 
       - name: Restore dependency cache
         uses: actions/cache@v4
@@ -135,11 +138,11 @@ jobs:
             cmake -S cmake-common/cmake/dependency -B "$build_dir" \
               -DDKYB_DEPENDENCY_NAME=${name} \
               -DDKYB_DEPENDENCY_VERSION=${version} \
-              -DDKYB_DEPENDENCY_BUILD=ON \
-              -DDKYB_DEPENDENCY_CACHE_ROOT=${DKYB_DEPENDENCY_CACHE_ROOT} \
-              -DDKYB_DEPENDENCY_SYSTEM_INSTALL_PREFIX=/usr \
-              -DDKYB_DEPENDENCY_SYSTEM_INSTALL_USE_SUDO=ON \
-              -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+            -DDKYB_DEPENDENCY_BUILD=ON \
+            -DDKYB_DEPENDENCY_CACHE_ROOT=${DKYB_DEPENDENCY_CACHE_ROOT} \
+            -DDKYB_DEPENDENCY_SYSTEM_INSTALL_PREFIX=${DKYB_DEPENDENCY_INSTALL_PREFIX} \
+            -DDKYB_DEPENDENCY_SYSTEM_INSTALL_USE_SUDO=OFF \
+            -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
             cmake --build "$build_dir" --target dkyb_dependency_runner --config ${BUILD_TYPE}
             mkdir -p "$cache_dir"
             touch "$cache_dir/.dkyb-build-ok"
