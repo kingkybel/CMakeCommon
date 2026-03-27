@@ -224,7 +224,7 @@ function(dkyb_build_and_cache NAME VERSION)
         ExternalProject_Add(
             ${_target_name}
             ${_external_args}
-            INSTALL_COMMAND "sudo env PATH=$PATH ${CMAKE_COMMAND} --install <BINARY_DIR> --prefix ${_install_prefix}"
+            INSTALL_COMMAND sudo env "PATH=$PATH" ${CMAKE_COMMAND} --install <BINARY_DIR> --prefix ${_install_prefix}
         )
     endif()
 
