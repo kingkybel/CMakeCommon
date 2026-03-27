@@ -52,7 +52,7 @@ jobs:
             lcov
 
       - name: Install CMake
-        uses: jwlawson/actions-setup-cmake@v7
+        uses: jwlawson/actions-setup-cmake@v2.2.0
         with:
           cmake_version: ${{ inputs.cmake-version }}
 
