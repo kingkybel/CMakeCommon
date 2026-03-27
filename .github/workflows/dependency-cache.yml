@@ -56,7 +56,7 @@ jobs:
             deps-${{ inputs.dependency-name }}-
       - name: Configure dependency runner
         run: |
-          cmake -S cmake/dependency -B build \
+          cmake -S cmake-common/cmake/dependency -B build \
             -DDKYB_DEPENDENCY_NAME=${{ inputs.dependency-name }} \
             -DDKYB_DEPENDENCY_VERSION=${{ inputs.dependency-version }} \
             -DDKYB_DEPENDENCY_BUILD=${{ inputs.build }} \
