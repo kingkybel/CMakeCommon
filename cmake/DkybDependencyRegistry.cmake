@@ -7,6 +7,7 @@ dkyb_register_dependency(boost
     GIT_REPOSITORY https://github.com/boostorg/boost.git
     ARCHIVE_URL_TEMPLATE https://boostorg.jfrog.io/artifactory/main/release/<version>/source/boost_<version>.tar.gz
     VERSION_TRANSFORM underscore
+    GIT_TAG_TEMPLATE boost-<version>
     CMAKE_ARGS -DBOOST_SUPPRESS_DEPRECATED_FEATURES=ON -DBUILD_TESTING=OFF
 )
 
