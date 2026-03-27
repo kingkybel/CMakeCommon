@@ -65,7 +65,14 @@ jobs:
       - name: Build dependency
         run: cmake --build build --target dkyb_dependency_runner --config ${{ inputs.build-type }}
       - name: Install dependency
-        run: sudo cmake --install build --config ${{ inputs.build-type }} --prefix /usr
+        run: |
+          set -euo pipefail
+          install_dir="${{ env.DKYB_DEPENDENCY_CACHE_ROOT }}/${{ inputs.dependency-name }}/${{ inputs.dependency-version }}/install"
+          if [ -d "$install_dir" ]; then
+            sudo cp -r "$install_dir"/* /usr
+          else
+            echo "##[warning]No install tree found at $install_dir, skipping."
+          fi
       - name: Package cached dependency
         run: |
           mkdir -p artifacts
