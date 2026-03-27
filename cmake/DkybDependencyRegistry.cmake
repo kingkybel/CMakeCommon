@@ -16,3 +16,13 @@ dkyb_register_dependency(gtest
     ARCHIVE_URL_TEMPLATE https://github.com/google/googletest/archive/refs/tags/v<version>.zip
     GIT_TAG_TEMPLATE v<version>
 )
+
+dkyb_register_dependency(typetraits
+    GIT_REPOSITORY https://github.com/kingkybel/TypeTraits.git
+    GIT_TAG_TEMPLATE main
+)
+
+dkyb_register_dependency(debugtrace
+    GIT_REPOSITORY https://github.com/kingkybel/DebugTrace.git
+    GIT_TAG_TEMPLATE main
+)
