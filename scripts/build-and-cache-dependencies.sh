@@ -14,6 +14,7 @@ INSTALL_PREFIX="${INSTALL_PREFIX:-${PWD}/dkyb-install}"
 DEPENDENCY_BUILD_TYPE="${DEPENDENCY_BUILD_TYPE:-Release}"
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-${PWD}}"
 
+mkdir -p ${DKYB_DEPENDENCY_CACHE_ROOT}
 cd ${DKYB_DEPENDENCY_CACHE_ROOT}
 curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
 unzip -q build-wrapper.zip
