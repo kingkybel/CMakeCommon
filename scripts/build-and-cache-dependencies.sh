@@ -73,6 +73,6 @@ echo "---------------------- cache_root=${DKYB_DEPENDENCY_CACHE_ROOT}"
 curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
 unzip -q build-wrapper.zip
 echo "$(ls -Fax ${DKYB_DEPENDENCY_CACHE_ROOT}/sonar | xargs)"
-echo "wrapper: $(find . -type f -name 'build-wrapper-linux-x86-64' -exec ls -l {} \;)"
+echo "wrapper: $(find ${DKYB_DEPENDENCY_CACHE_ROOT} -type f -name 'build-wrapper-linux-x86-64' | xargs)"
 
 
