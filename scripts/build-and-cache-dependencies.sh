@@ -22,8 +22,7 @@ echo "----------------------"
 
 DEPENDENCY_LIST="${DEPENDENCY_LIST:-}"
 if [[ -z "$(printf '%s' "$DEPENDENCY_LIST" | tr -d '[:space:]')" ]]; then
-  echo "No dependencies configured"
-  # exit 0
+  DEPENDENCY_LIST="gtest:latest"
 fi
 
 sanitize() {
@@ -65,14 +64,11 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   cmake --build "$build_dir" --target dkyb_dependency_runner --config ${DEPENDENCY_BUILD_TYPE}
 done <<< "$trimmed_dependencies"
 
-echo "$(ls -Fax ${DKYB_DEPENDENCY_CACHE_ROOT} | xargs)"
+echo "Downloading sonar build wrapper to cache"
 mkdir -p ${DKYB_DEPENDENCY_CACHE_ROOT}/sonar
 cd ${DKYB_DEPENDENCY_CACHE_ROOT}/sonar
-echo "---------------------- cache_root=${DKYB_DEPENDENCY_CACHE_ROOT}"
-
 curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
 unzip -q build-wrapper.zip
-echo "$(ls -Fax ${DKYB_DEPENDENCY_CACHE_ROOT}/sonar | xargs)"
-echo "wrapper: $(find ${DKYB_DEPENDENCY_CACHE_ROOT} -type f -name 'build-wrapper-linux-x86-64' | xargs)"
+echo "sonar build wrapper: $(find ${DKYB_DEPENDENCY_CACHE_ROOT} -type f -name 'build-wrapper-linux-x86-64' | xargs)"
 
 
