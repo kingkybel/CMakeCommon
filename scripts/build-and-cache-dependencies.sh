@@ -9,16 +9,28 @@ set -euo pipefail
 #   DEPENDENCY_BUILD_TYPE (CMake configuration, defaults to Release)
 #   GITHUB_WORKSPACE (defaults to current directory)
 
+DKYB_DEPENDENCY_CACHE_ROOT="${DKYB_DEPENDENCY_CACHE_ROOT:-${PWD}/dkyb-cache}"
+INSTALL_PREFIX="${INSTALL_PREFIX:-${PWD}/dkyb-install}"
+DEPENDENCY_BUILD_TYPE="${DEPENDENCY_BUILD_TYPE:-Release}"
+GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-${PWD}}"
+
+cd ${DKYB_DEPENDENCY_CACHE_ROOT}
+curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+unzip -q build-wrapper.zip
+echo "${PWD}/build-wrapper-linux-x86" >> "$GITHUB_PATH"
+
 DEPENDENCY_LIST="${DEPENDENCY_LIST:-}"
 if [[ -z "$(printf '%s' "$DEPENDENCY_LIST" | tr -d '[:space:]')" ]]; then
   echo "No dependencies configured"
   exit 0
 fi
 
-DKYB_DEPENDENCY_CACHE_ROOT="${DKYB_DEPENDENCY_CACHE_ROOT:-${PWD}/dkyb-cache}"
-INSTALL_PREFIX="${INSTALL_PREFIX:-${PWD}/dkyb-install}"
-DEPENDENCY_BUILD_TYPE="${DEPENDENCY_BUILD_TYPE:-Release}"
-GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-${PWD}}"
+echo "----------------------"
+echo "Using dependency cache root: $DKYB_DEPENDENCY_CACHE_ROOT"
+echo "Using install prefix: $INSTALL_PREFIX"
+echo "Using build type: $DEPENDENCY_BUILD_TYPE"
+echo "----------------------"
+
 
 echo "----------------------"
 echo "Using dependency cache root: $DKYB_DEPENDENCY_CACHE_ROOT"
