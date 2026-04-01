@@ -15,10 +15,17 @@ if [[ -z "$(printf '%s' "$DEPENDENCY_LIST" | tr -d '[:space:]')" ]]; then
   exit 0
 fi
 
-DKYB_DEPENDENCY_CACHE_ROOT="${DKYB_DEPENDENCY_CACHE_ROOT:-${PWD}/build/dkyb-cache}"
-INSTALL_PREFIX="${INSTALL_PREFIX:-${PWD}/build/dkyb-install}"
+DKYB_DEPENDENCY_CACHE_ROOT="${DKYB_DEPENDENCY_CACHE_ROOT:-${PWD}/dkyb-cache}"
+INSTALL_PREFIX="${INSTALL_PREFIX:-${PWD}/dkyb-install}"
 DEPENDENCY_BUILD_TYPE="${DEPENDENCY_BUILD_TYPE:-Release}"
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-${PWD}}"
+
+echo "----------------------"
+echo "Using dependency cache root: $DKYB_DEPENDENCY_CACHE_ROOT"
+echo "Using install prefix: $INSTALL_PREFIX"
+echo "Using build type: $DEPENDENCY_BUILD_TYPE"
+echo "----------------------"
+
 
 sanitize() {
   local value="$1"
@@ -48,12 +55,6 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   version=${version:-latest}
 
   sanitized_version=$(sanitize "$version")
-  cache_dir="${DKYB_DEPENDENCY_CACHE_ROOT}/${name}/${sanitized_version}"
-  if [[ -f "${cache_dir}/.dkyb-build-ok" ]]; then
-    echo "Dependency ${name}@${version} already built; skipping."
-    continue
-  fi
-
   build_dir="${GITHUB_WORKSPACE}/build/dependency-${name}-${sanitized_version}"
   cmake -S cmake-common/cmake/dependency -B "$build_dir" \
     -DDKYB_DEPENDENCY_NAME=${name} \
@@ -64,6 +65,4 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     -DDKYB_DEPENDENCY_SYSTEM_INSTALL_USE_SUDO=OFF \
     -DCMAKE_BUILD_TYPE=${DEPENDENCY_BUILD_TYPE}
   cmake --build "$build_dir" --target dkyb_dependency_runner --config ${DEPENDENCY_BUILD_TYPE}
-  mkdir -p "$cache_dir"
-  touch "$cache_dir/.dkyb-build-ok"
 done <<< "$trimmed_dependencies"
