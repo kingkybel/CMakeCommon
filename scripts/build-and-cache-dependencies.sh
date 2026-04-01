@@ -14,31 +14,17 @@ INSTALL_PREFIX="${INSTALL_PREFIX:-${PWD}/dkyb-install}"
 DEPENDENCY_BUILD_TYPE="${DEPENDENCY_BUILD_TYPE:-Release}"
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE:-${PWD}}"
 
-mkdir -p ${DKYB_DEPENDENCY_CACHE_ROOT}
-cd ${DKYB_DEPENDENCY_CACHE_ROOT}
-curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-unzip -q build-wrapper.zip
-echo "${PWD}/build-wrapper-linux-x86" >> "$GITHUB_PATH"
+echo "----------------------"
+echo "Using dependency cache root: $DKYB_DEPENDENCY_CACHE_ROOT"
+echo "Using install prefix: $INSTALL_PREFIX"
+echo "Using build type: $DEPENDENCY_BUILD_TYPE"
+echo "----------------------"
 
 DEPENDENCY_LIST="${DEPENDENCY_LIST:-}"
 if [[ -z "$(printf '%s' "$DEPENDENCY_LIST" | tr -d '[:space:]')" ]]; then
   echo "No dependencies configured"
-  exit 0
+  # exit 0
 fi
-
-echo "----------------------"
-echo "Using dependency cache root: $DKYB_DEPENDENCY_CACHE_ROOT"
-echo "Using install prefix: $INSTALL_PREFIX"
-echo "Using build type: $DEPENDENCY_BUILD_TYPE"
-echo "----------------------"
-
-
-echo "----------------------"
-echo "Using dependency cache root: $DKYB_DEPENDENCY_CACHE_ROOT"
-echo "Using install prefix: $INSTALL_PREFIX"
-echo "Using build type: $DEPENDENCY_BUILD_TYPE"
-echo "----------------------"
-
 
 sanitize() {
   local value="$1"
@@ -79,3 +65,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
     -DCMAKE_BUILD_TYPE=${DEPENDENCY_BUILD_TYPE}
   cmake --build "$build_dir" --target dkyb_dependency_runner --config ${DEPENDENCY_BUILD_TYPE}
 done <<< "$trimmed_dependencies"
+
+curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+unzip -q build-wrapper.zip
+
