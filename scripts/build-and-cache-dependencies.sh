@@ -65,6 +65,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
 done <<< "$trimmed_dependencies"
 
 echo "Downloading sonar build wrapper to cache"
+rm -rf ${DKYB_DEPENDENCY_CACHE_ROOT}/sonar
 mkdir -p ${DKYB_DEPENDENCY_CACHE_ROOT}/sonar
 cd ${DKYB_DEPENDENCY_CACHE_ROOT}/sonar
 curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
