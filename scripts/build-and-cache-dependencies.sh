@@ -65,9 +65,9 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   cmake --build "$build_dir" --target dkyb_dependency_runner --config ${DEPENDENCY_BUILD_TYPE}
 done <<< "$trimmed_dependencies"
 
-echo "pwd=${PWD} cache_root=${DKYB_DEPENDENCY_CACHE_ROOT}"
 mkdir -p ${DKYB_DEPENDENCY_CACHE_ROOT}/sonar
 cd ${DKYB_DEPENDENCY_CACHE_ROOT}/sonar
+echo "pwd=${PWD} cache_root=${DKYB_DEPENDENCY_CACHE_ROOT}"
 curl -sSLo build-wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
 unzip -q build-wrapper.zip
 
